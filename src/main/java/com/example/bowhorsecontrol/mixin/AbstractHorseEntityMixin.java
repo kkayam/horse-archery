@@ -63,8 +63,14 @@ public class AbstractHorseEntityMixin {
                     
                     return new Vec3d(newX, movementInput.y, newZ);
                 } else {
-                    // Reset when bow is released (arrow shot or stopped drawing)
-                    bowhorsecontrol$initialYaw = Float.NaN;
+                    // When bow is released (arrow shot or stopped drawing)
+                    // Set player's yaw to match the horse's initial yaw before resetting
+                    if (!Float.isNaN(bowhorsecontrol$initialYaw)) {
+                        player.setYaw(bowhorsecontrol$initialYaw);
+                        player.prevYaw = bowhorsecontrol$initialYaw;
+                        // Reset after setting player yaw
+                        bowhorsecontrol$initialYaw = Float.NaN;
+                    }
                 }
             } else {
                 // Reset when player dismounts
