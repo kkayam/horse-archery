@@ -4,7 +4,7 @@
   "package": "com.example.bowhorsecontrol.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "AbstractHorseEntityMixin"
+    "LivingEntityMixin"
   ],
   "client": [
   ],

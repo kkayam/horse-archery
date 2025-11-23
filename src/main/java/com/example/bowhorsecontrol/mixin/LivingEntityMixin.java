@@ -1,5 +1,6 @@
 package com.example.bowhorsecontrol.mixin;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -7,21 +8,26 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(AbstractHorseEntity.class)
-public class AbstractHorseEntityMixin {
-    
+@Mixin(LivingEntity.class)
+public class LivingEntityMixin {
+
     /**
-     * Redirects the getRotationVector() call in travel() to return zero vector
-     * when the player is drawing a bow, preventing the horse from following camera direction.
+     * Redirects the getRotationVector() call in travel() to prevent horse from following camera direction
+     * when the player is drawing a bow. Only applies to AbstractHorseEntity instances.
      */
     @Redirect(
         method = "travel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/passive/AbstractHorseEntity;getRotationVector()Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/entity/LivingEntity;getRotationVector()Lnet/minecraft/util/math/Vec3d;"
         )
     )
-    private Vec3d redirectRotationVector(AbstractHorseEntity horse) {
+    private Vec3d redirectRotationVector(LivingEntity entity) {
+        // Only apply to horses
+        if (!(entity instanceof AbstractHorseEntity horse)) {
+            return entity.getRotationVector();
+        }
+        
         // Check if the horse has a passenger
         if (horse.getFirstPassenger() instanceof PlayerEntity player) {
             // Check if the player is using a bow (drawing)
@@ -34,7 +40,7 @@ public class AbstractHorseEntityMixin {
         }
         
         // Normal behavior: return the rotation vector
-        return horse.getRotationVector();
+        return entity.getRotationVector();
     }
 }
 
