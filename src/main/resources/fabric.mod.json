@@ -15,9 +15,9 @@
 
   "license": "MIT",
 
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
-    "main": [
+    "client": [
       "com.example.bowhorsecontrol.BowHorseControl"
     ]
   },

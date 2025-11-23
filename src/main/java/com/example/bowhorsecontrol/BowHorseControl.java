@@ -1,10 +1,10 @@
 package com.example.bowhorsecontrol;
 
-import net.fabricmc.api.ModInitializer;
+import net.fabricmc.api.ClientModInitializer;
 
-public class BowHorseControl implements ModInitializer {
+public class BowHorseControl implements ClientModInitializer {
     @Override
-    public void onInitialize() {
+    public void onInitializeClient() {
         // Mod initialization
     }
 }
