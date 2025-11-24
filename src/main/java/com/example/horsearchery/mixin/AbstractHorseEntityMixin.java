@@ -46,7 +46,11 @@ public class AbstractHorseEntityMixin {
                 boolean isDrawingBow = player.isUsingItem() && 
                                       player.getActiveItem().getItem() instanceof BowItem;
                 
-                if (isDrawingBow) {
+                if (isDrawingBow || !Float.isNaN(bowhorsecontrol$targetYaw)) {
+                    if (isDrawingBow) {
+                        bowhorsecontrol$targetYaw = Float.NaN;
+                    }
+
                     // Store the initial yaw when bow draw starts (if not already stored)
                     if (Float.isNaN(bowhorsecontrol$initialYaw)) {
                         bowhorsecontrol$initialYaw = horse.getYaw();
@@ -109,10 +113,6 @@ public class AbstractHorseEntityMixin {
                     // Restore the initial yaw to prevent rotation
                     horse.setYaw(bowhorsecontrol$initialYaw);
                     horse.prevYaw = bowhorsecontrol$initialYaw;
-                }
-
-                if (isDrawingBow) {
-                    bowhorsecontrol$targetYaw = Float.NaN;
                 }
                 
                 // Handle smooth rotation of player's yaw when bow is released
