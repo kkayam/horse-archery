@@ -1,4 +1,4 @@
-# Bow Horse Control
+# Horse Archery
 
 A Minecraft Fabric mod for version 1.20.1 that allows free camera movement when using a bow on a horse.
 

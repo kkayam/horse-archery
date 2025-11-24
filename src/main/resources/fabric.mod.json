@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "bowhorsecontrol",
+  "id": "horsearchery",
   "version": "${version}",
 
-  "name": "Bow Horse Control",
+  "name": "Horse Archery",
   "description": "Allows free camera movement when using a bow on a horse",
   "authors": [
-    "YourName"
+    "ddema"
   ],
   "contact": {
     "homepage": "",
@@ -18,11 +18,11 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.example.bowhorsecontrol.BowHorseControl"
+      "com.example.horsearchery.HorseArchery"
     ]
   },
   "mixins": [
-    "bowhorsecontrol.mixins.json"
+    "horsearchery.mixins.json"
   ],
 
   "depends": {

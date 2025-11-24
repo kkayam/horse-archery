@@ -1,4 +1,4 @@
-package com.example.bowhorsecontrol.mixin;
+package com.example.horsearchery.mixin;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
