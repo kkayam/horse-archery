@@ -1,5 +1,6 @@
 package com.example.horsearchery.mixin;
 
+import com.example.horsearchery.HorseArchery;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,6 +18,9 @@ public class AbstractHorseEntityMixin {
     
     @Unique
     private float bowhorsecontrol$initialYaw = Float.NaN;
+    
+    @Unique
+    private float bowhorsecontrol$targetYaw = Float.NaN;
     
     /**
      * Transforms the movement input to be relative to the horse's locked yaw direction
@@ -40,7 +44,7 @@ public class AbstractHorseEntityMixin {
                 boolean isDrawingBow = player.isUsingItem() && 
                                       player.getActiveItem().getItem() instanceof BowItem;
                 
-                if (isDrawingBow) {
+                if (isDrawingBow && !Float.isNaN(bowhorsecontrol$initialYaw)) {
                     // Store the initial yaw when bow draw starts (if not already stored)
                     if (Float.isNaN(bowhorsecontrol$initialYaw)) {
                         bowhorsecontrol$initialYaw = horse.getYaw();
@@ -64,17 +68,16 @@ public class AbstractHorseEntityMixin {
                     return new Vec3d(newX, movementInput.y, newZ);
                 } else {
                     // When bow is released (arrow shot or stopped drawing)
-                    // Set player's yaw to match the horse's initial yaw before resetting
+                    // Start smooth rotation towards the horse's initial yaw
                     if (!Float.isNaN(bowhorsecontrol$initialYaw)) {
-                        player.setYaw(bowhorsecontrol$initialYaw);
-                        player.prevYaw = bowhorsecontrol$initialYaw;
-                        // Reset after setting player yaw
-                        bowhorsecontrol$initialYaw = Float.NaN;
+                        bowhorsecontrol$targetYaw = bowhorsecontrol$initialYaw;
+                        // Don't reset initialYaw yet - let the rotation complete first
                     }
                 }
             } else {
                 // Reset when player dismounts
                 bowhorsecontrol$initialYaw = Float.NaN;
+                bowhorsecontrol$targetYaw = Float.NaN;
             }
         }
         
@@ -85,6 +88,7 @@ public class AbstractHorseEntityMixin {
     /**
      * Prevents the horse from rotating its yaw based on passenger input.
      * This only applies when drawing a bow and runs at the end of the travel method.
+     * Also handles smooth rotation of player's yaw when bow is released.
      */
     @Inject(
         method = "travel",
@@ -103,6 +107,34 @@ public class AbstractHorseEntityMixin {
                     // Restore the initial yaw to prevent rotation
                     horse.setYaw(bowhorsecontrol$initialYaw);
                     horse.prevYaw = bowhorsecontrol$initialYaw;
+                }
+                
+                // Handle smooth rotation of player's yaw when bow is released
+                if (!Float.isNaN(bowhorsecontrol$targetYaw)) {
+                    float currentYaw = player.getYaw();
+                    float targetYaw = bowhorsecontrol$targetYaw;
+                    
+                    // Calculate the shortest rotation path (handle 360-degree wrap-around)
+                    float yawDiff = targetYaw - currentYaw;
+                    // Normalize to -180 to 180 range
+                    while (yawDiff > 180.0f) yawDiff -= 360.0f;
+                    while (yawDiff < -180.0f) yawDiff += 360.0f;
+                    
+                    // Get rotation speed from config
+                    float rotationSpeed = HorseArchery.config != null ? HorseArchery.config.yawRotationSpeed : 0.15f;
+                    
+                    // If we're close enough, snap to target and reset
+                    if (Math.abs(yawDiff) < 0.5f) {
+                        player.setYaw(targetYaw);
+                        player.prevYaw = targetYaw;
+                        bowhorsecontrol$targetYaw = Float.NaN;
+                        bowhorsecontrol$initialYaw = Float.NaN;
+                    } else {
+                        // Interpolate towards target using config speed
+                        float newYaw = currentYaw + yawDiff * rotationSpeed;
+                        player.setYaw(newYaw);
+                        player.prevYaw = newYaw;
+                    }
                 }
             }
         }
