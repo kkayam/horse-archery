@@ -1,6 +1,5 @@
 package com.example.horsearchery.mixin;
 
-import com.example.horsearchery.HorseArchery;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,6 +20,9 @@ public class AbstractHorseEntityMixin {
     
     @Unique
     private float bowhorsecontrol$targetYaw = Float.NaN;
+    
+    @Unique
+    private static final float ROTATION_SPEED = 0.15f; // Rotation speed for smooth yaw transition
     
     /**
      * Transforms the movement input to be relative to the horse's locked yaw direction
@@ -44,7 +46,7 @@ public class AbstractHorseEntityMixin {
                 boolean isDrawingBow = player.isUsingItem() && 
                                       player.getActiveItem().getItem() instanceof BowItem;
                 
-                if (isDrawingBow && !Float.isNaN(bowhorsecontrol$initialYaw)) {
+                if (isDrawingBow) {
                     // Store the initial yaw when bow draw starts (if not already stored)
                     if (Float.isNaN(bowhorsecontrol$initialYaw)) {
                         bowhorsecontrol$initialYaw = horse.getYaw();
@@ -120,18 +122,15 @@ public class AbstractHorseEntityMixin {
                     while (yawDiff > 180.0f) yawDiff -= 360.0f;
                     while (yawDiff < -180.0f) yawDiff += 360.0f;
                     
-                    // Get rotation speed from config
-                    float rotationSpeed = HorseArchery.config != null ? HorseArchery.config.yawRotationSpeed : 0.15f;
-                    
                     // If we're close enough, snap to target and reset
-                    if (Math.abs(yawDiff) < 0.5f) {
+                    if (Math.abs(yawDiff) < 10.0f) {
                         player.setYaw(targetYaw);
                         player.prevYaw = targetYaw;
                         bowhorsecontrol$targetYaw = Float.NaN;
                         bowhorsecontrol$initialYaw = Float.NaN;
                     } else {
-                        // Interpolate towards target using config speed
-                        float newYaw = currentYaw + yawDiff * rotationSpeed;
+                        // Interpolate towards target
+                        float newYaw = currentYaw + yawDiff * ROTATION_SPEED;
                         player.setYaw(newYaw);
                         player.prevYaw = newYaw;
                     }
