@@ -50,7 +50,9 @@ public class AbstractHorseEntityMixin {
         // Only apply to horses
         if (entity instanceof AbstractHorseEntity horse) {
             // Check if the horse has a passenger
-            if (horse.getFirstPassenger() instanceof PlayerEntity player) {
+            boolean isMoving = movementInput.x != 0 || movementInput.z != 0;
+            if (isMoving && horse.getFirstPassenger() instanceof PlayerEntity player) {
+                // Check if the horse is moving
                 // Check if the player is drawing a bow
                 boolean isDrawingBow = player.isUsingItem() && 
                                       player.getActiveItem().getItem() instanceof BowItem;
