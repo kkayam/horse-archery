@@ -15,6 +15,7 @@
 
   "license": "MIT",
 
+  "icon": "assets/horsearchery/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
